@@ -1,0 +1,35 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Start page</title>
+</head>
+<body>
+<h2>
+    Say hello!
+</h2>
+<p>
+    There are all available items
+</p>
+<hr>
+{% for item in items %}
+    <h5 style="font-size: 22px;">Name: {{ item.name }}</h5>
+    <p>Description: {{ item.description }}</p>
+    <h6 style="font-size: 15px;">Price: {{ item.price }}</h6>
+    <button type="submit" onclick="fetch('item/{{ item.id }}', {method: 'GET'})
+    .then((data) => {
+      window.location.replace('http://127.0.0.1:8000/item/{{ item.id }}');
+    })">View</button>
+    <br>
+{% endfor %}
+<hr>
+<form action="{% url 'home' %}" method="post">
+    {% csrf_token %}
+    <input type="text" name="name" placeholder="Name">
+    <input type="text" name="description" placeholder="Description">
+    <input type="text" name="price" placeholder="Price(in cents)">
+    <button type="submit">Create product</button>
+</form>
+</body>
+</html>

@@ -1,0 +1,31 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        fetch("/conf/")
+        .then((result) => { return result.json(); })
+        .then((data) => {
+            const stripe = Stripe(data.public_key);
+            document.querySelector("#btn").addEventListener("click", () => {
+            var strka = document.getElementById('inp').value;
+            fetch("/buy/" + strka)
+            .then((result) => { return result.json(); })
+            .then((data) => {
+              return stripe.redirectToCheckout({sessionId: data.sessionId})
+            });
+          });
+        });
+    </script>
+</head>
+<body>
+    <h5 style="font-size: 22px;">Name: {{ item.name }}</h5>
+    <p>Description: {{ item.description }}</p>
+    <h6 style="font-size: 15px;">Price: {{ item.price }}</h6>
+    <input type="hidden" id="inp" value={{ item.id }}>
+    <button type="submit" id="btn" onclick="">Buy</button>
+</body>
+</html>
