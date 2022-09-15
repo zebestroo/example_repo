@@ -4,7 +4,7 @@
 
 First of all you will need Python(3.8.13). You can download it by https://www.python.org/.
 
-Now let's start instalation
+Now let's start installation
 
 Run this commant to clone test repository with project
 ```sh
@@ -17,13 +17,13 @@ Go to the repo
 cd example_repo
 ```
 
-Create virtual enviroment
+Create virtual environment
 
 ```sh
 python3.8 -m venv djangoenv
 ```
 
-Activate virtual enviroment
+Activate virtual environment
 
 ```sh
 source djangoenv/bin/activate
@@ -39,7 +39,7 @@ Go to the project repo
 cd fox
 ```
 
-After creating stripe [Account](https://stripe.com/) you will have two keys `Publishable key` and `Secret key`. For testing project with this account you should reset fields `STRIPE_PUBLISHABLE_KEY` and `STRIPE_SECRET_KEY` in your `fox/settings.py` to your personal `Publishable key` and `Secret key`. It will look like this python code in `fox/settings.py`:
+After creating stripe [Account](https://stripe.com/) you will have two keys `Publishable key` and `Secret key`. For testing project with this account you should replace fields `STRIPE_PUBLISHABLE_KEY` and `STRIPE_SECRET_KEY` in your `fox/settings.py` to your personal `Publishable key` and `Secret key`. It will look like this python code in `fox/settings.py`:
 ```
 STRIPE_PUBLISHABLE_KEY = '<Publishable key>'
 STRIPE_SECRET_KEY = '<Secret key>'
