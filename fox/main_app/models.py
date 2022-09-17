@@ -8,3 +8,9 @@ class Item(models.Model):
     name = models.CharField(max_length=50)
     description = models.TextField(max_length=500)
     price = models.FloatField(default=0)
+
+
+class Order(models.Model):
+    id = models.AutoField(primary_key=True)
+    data_json = models.JSONField(default={'item_ids': []})
+    total_scale = models.FloatField(default=0)

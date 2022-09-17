@@ -1,0 +1,27 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Order page</title>
+</head>
+<body>
+<h2>
+    Your Order
+</h2>
+
+<hr>
+{% for name in names %}
+    <h5 style="font-size: 22px;">{{ name }}</h5>
+{% endfor %}
+<hr>
+<h3>
+    Total scale: {{ order_data.total_scale }}
+</h3>
+<button type="submit" onclick="fetch('order/{{ order_data.id }}', {method: 'GET'})
+    .then((data) => {
+        console.log('{{ order.id }}');
+      window.location.replace('http://127.0.0.1:8000/order/{{ order_data.id }}');
+    })">Confirm</button>
+</body>
+</html>

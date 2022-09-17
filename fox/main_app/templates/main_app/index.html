@@ -13,23 +13,31 @@
     There are all available items
 </p>
 <hr>
-{% for item in items %}
-    <h5 style="font-size: 22px;">Name: {{ item.name }}</h5>
-    <p>Description: {{ item.description }}</p>
-    <h6 style="font-size: 15px;">Price: {{ item.price }}</h6>
-    <button type="submit" onclick="fetch('item/{{ item.id }}', {method: 'GET'})
-    .then((data) => {
-      window.location.replace('http://127.0.0.1:8000/item/{{ item.id }}');
-    })">View</button>
-    <br>
-{% endfor %}
+<form action="{% url 'order_list' %}" method="post">
+    {% csrf_token %}
+    {% for item in items %}
+        <h5 style="font-size: 22px;">Name: {{ item.name }}</h5>
+        <p>Description: {{ item.description }}</p>
+        <h6 style="font-size: 15px;">Price: {{ item.price }}</h6>
+        <button type="submit" onclick="fetch('item/{{ item.id }}', {method: 'GET'})
+        .then((data) => {
+          window.location.replace('http://127.0.0.1:8000/item/{{ item.id }}');
+        })">View</button>
+        <input type="checkbox" name="items" value={{ item.id }}>Select item
+    {% endfor %}
+    <hr>
+    <h3>To create an order push this button</h3>
+    <button type="submit">Create an order</button>
+</form>
 <hr>
+<h3>You can create new product with this form</h3>
 <form action="{% url 'home' %}" method="post">
     {% csrf_token %}
     <input type="text" name="name" placeholder="Name">
     <input type="text" name="description" placeholder="Description">
     <input type="text" name="price" placeholder="Price(in cents)">
     <button type="submit">Create product</button>
+
 </form>
 </body>
 </html>
