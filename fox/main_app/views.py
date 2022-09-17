@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.conf import settings
 from django.http.response import JsonResponse
-from .models import Item, Order
+from .models import Item, Order, Tax, Discount
 import stripe
 
 # Create your views here.
@@ -24,7 +24,27 @@ def order_list(request):
     if item_ids:
         names = [Item.objects.get(id=item_id).name for item_id in item_ids]
         scale = sum([Item.objects.get(id=item_id).price for item_id in item_ids])
-        new_order = Order(data_json={'item_ids': item_ids}, total_scale=scale)
+
+        # Select first tax for example
+        if Tax.objects.all():
+            taxes = [Tax.objects.all()[0].id]
+        else:
+            taxes = []
+
+        # Select first discount for example
+        if Discount.objects.all():
+            discounts = [discount_dict(Discount.objects.all()[0])]
+        else:
+            discounts = []
+
+        new_order = Order(
+            data_json={
+                'item_ids': item_ids,
+                'taxes': taxes,
+                'discounts': discounts,
+            },
+            total_scale=scale,
+        )
         new_order.save()
         data = {'order_data': new_order, 'names': names}
         return render(request, 'main_app/order_list.html', data)
@@ -61,19 +81,22 @@ def buy(request, item_id):
 
 
 def buy_order(request, order_id):
-    transform = lambda x : { 'price': x, 'quantity': 1}
-
     if request.method == 'GET':
         domain_url = 'http://localhost:8000/'
         stripe.api_key = settings.STRIPE_SECRET_KEY
         try:
-            item_ids = Order.objects.get(id=order_id).data_json['item_ids']
+            order_object = Order.objects.get(id=order_id)
+            item_ids = order_object.data_json['item_ids']
+            discounts = order_object.data_json['discounts']
+            taxes = order_object.data_json['taxes']
+
             checkout_session = stripe.checkout.Session.create(
                 success_url=domain_url + 'success/',
                 cancel_url=domain_url + 'cancelled/',
                 payment_method_types=['card'],
                 mode='payment',
-                line_items=[transform(item_id) for item_id in item_ids]
+                line_items=[line_item(item_id, taxes) for item_id in item_ids],
+                discounts=discounts,
             )
             return JsonResponse({'sessionId': checkout_session['id']})
         except Exception as e:
@@ -103,3 +126,31 @@ def create_product(request):
     default_price = stripe.Price.create(stripe.api_key, currency='usd', unit_amount=price, product=product)
     product.modify(product.id, default_price=default_price)
     Item.objects.create(name=name, description=description, price=price/100, id=default_price.id)
+
+
+def create_tax(percentage=0, inclusive=False, name='Empty name'):
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+    tax = stripe.TaxRate.create(percentage=percentage, display_name=name, inclusive=inclusive)
+    Tax.objects.create(id=tax.id, percentage=tax.percentage, inclusive=tax.inclusive)
+
+
+def create_discount(discount_type='coupon', amount_off=None, percent_off=None):
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+    if discount_type == 'coupon':
+        if amount_off:
+            coupon = stripe.Coupon.create(amount_off=amount_off)
+        if percent_off:
+            coupon = stripe.Coupon.create(percent_off=percent_off)
+        Discount.objects.create(type=discount_type, id=coupon.id)
+
+
+def line_item(price_id, tax_rate_ids=[]):
+    return {
+                'price': price_id,
+                'quantity': 1,
+                'tax_rates': tax_rate_ids,
+            }
+
+
+def discount_dict(discount):
+    return {discount.type: discount.id}
