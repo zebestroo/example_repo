@@ -6,7 +6,7 @@ First of all you will need Python(3.8.13). You can download it by https://www.py
 
 Now let's start installation
 
-Run this commant to clone test repository with project
+Run this command to clone test repository with project
 ```sh
 git clone https://github.com/zebestroo/example_repo.git
 ```
